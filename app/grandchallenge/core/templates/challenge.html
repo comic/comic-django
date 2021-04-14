@@ -67,6 +67,11 @@
 
                         {% if "change_challenge" in challenge_perms or user_is_participant %}
                             <li class="nav-item">
+                                <a class="nav-link {% if "workspaces:" in request.resolver_match.view_name %}active{% endif %}"
+                                   href="{% url 'workspaces:create' challenge_short_name=challenge.short_name slug=challenge.phase_set.first.slug %}">
+                                    Workspaces</a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link {% if request.resolver_match.view_name == 'evaluation:submission-create' or request.resolver_match.view_name == 'evaluation:submission-list' %}active{% endif %}"
                                    href="{% url 'evaluation:submission-create' challenge_short_name=challenge.short_name slug=challenge.phase_set.first.slug %}">
                                     Submit</a>
@@ -122,6 +127,11 @@
                             {% endif %}
 
                             {% if "change_challenge" in challenge_perms or user_is_participant %}
+                                <li class="dropdown-item px-0 py-0 challengeDropdown">
+                                    <a class="nav-link"
+                                       href="{% url 'workspaces:create' challenge_short_name=challenge.short_name slug=challenge.phase_set.first.slug %}">
+                                        Workspaces</a>
+                                </li>
                                 <li class="dropdown-item px-0 py-0 challengeDropdown">
                                     <a class="nav-link"
                                        href="{% url 'evaluation:submission-create' challenge_short_name=challenge.short_name slug=challenge.phase_set.first.slug %}">
