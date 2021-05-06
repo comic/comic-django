@@ -8,6 +8,7 @@ from guardian.shortcuts import assign_perm, remove_perm
 from grandchallenge.algorithms.models import Algorithm
 from grandchallenge.anatomy.models import BodyStructure
 from grandchallenge.cases.models import Image
+from grandchallenge.components.models import ComponentInterfaceValue
 from grandchallenge.core.models import RequestBase, UUIDModel
 from grandchallenge.core.storage import (
     get_logo_path,
@@ -262,6 +263,26 @@ class Archive(UUIDModel, TitleSlugDescriptionModel):
     @property
     def api_url(self):
         return reverse("api:archive-detail", kwargs={"pk": self.pk})
+
+
+class ArchiveItem(UUIDModel):
+    archive = models.ForeignKey(
+        Archive, related_name="items", on_delete=models.CASCADE
+    )
+    values = models.ManyToManyField(
+        ComponentInterfaceValue, blank=True, related_name="archive_items"
+    )
+
+    def delete(self, *args, **kwargs):
+        image_pks = self.values.filter(image__isnull=False).values_list(
+            "image", flat=True
+        )
+        images = Image.objects.filter(pk__in=image_pks)
+        remove_perm("view_image", self.archive.editors_group, images)
+        remove_perm("view_image", self.archive.uploaders_group, images)
+        remove_perm("view_image", self.archive.users_group, images)
+
+        super().delete(*args, **kwargs)
 
 
 class ArchivePermissionRequest(RequestBase):
